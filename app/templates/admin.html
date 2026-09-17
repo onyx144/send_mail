@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mail Sender</title>
+  <style>
+    body{font-family:Inter,Arial,sans-serif;background:#0a0a0a;color:#f5f5f5;margin:0;padding:24px}
+    a{color:#00f3ff}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+    .card{background:#111827;border:1px solid #263244;border-radius:14px;padding:16px;box-shadow:0 0 18px rgba(0,243,255,.08)}
+    .num{font-size:32px;font-weight:800;color:#00ff41}.label{color:#9ca3af;font-size:13px}
+    table{width:100%;border-collapse:collapse;margin:14px 0 28px;background:#0f172a;border-radius:12px;overflow:hidden}
+    th,td{border-bottom:1px solid #1f2937;padding:10px;text-align:left;font-size:13px;vertical-align:top}th{color:#00f3ff;background:#111827}
+    code{background:#111827;color:#00ff41;padding:2px 5px;border-radius:5px}.muted{color:#9ca3af}.ok{color:#00ff41}.warn{color:#fbbf24}
+  </style>
+</head>
+<body>
+  <h1>Mail Sender</h1>
+  <p class="muted">Parser → DB → SMTP rotation → IMAP inbox → Telegram reply bridge.</p>
+  <div class="grid">
+    {% for key,value in counts.items() %}<div class="card"><div class="num">{{ value or 0 }}</div><div class="label">{{ key }}</div></div>{% endfor %}
+  </div>
+  <div class="card">
+    <h3>Runtime</h3>
+    <p>Parser URL: <code>{{ settings.parse_start_url or 'not set' }}</code></p>
+    <p>Auto sender: <b class="{{ 'ok' if settings.auto_sender_enabled else 'warn' }}">{{ settings.auto_sender_enabled }}</b>, inbox: <b class="{{ 'ok' if settings.auto_inbox_enabled else 'warn' }}">{{ settings.auto_inbox_enabled }}</b>, parser: <b class="{{ 'ok' if settings.auto_parse_enabled else 'warn' }}">{{ settings.auto_parse_enabled }}</b></p>
+  </div>
+  <h2>Last prospects</h2>
+  <table>
+    <tr><th>ID</th><th>Manifest</th><th>YouTube</th><th>Email</th><th>Nick</th><th>Subs</th><th>Videos</th><th>Last video</th><th>Plans</th><th>Status</th><th>Lose reason</th><th>Socials</th></tr>
+    {% for p in prospects %}
+      <tr><td>{{p.id}}</td><td>{% if p.manifest_url %}<a href="{{p.manifest_url}}">manifest</a>{% else %}-{% endif %}</td><td><a href="{{p.youtube_link}}">{{p.youtube_link}}</a></td><td>{{p.email or '-'}}</td><td>{{p.nick or '-'}}</td><td>{{p.subscribers or '-'}}</td><td>{{p.video_count or '-'}}</td><td>{{p.last_video_at or '-'}}</td><td>{{p.plans}}</td><td>{{p.status}}</td><td>{{p.lose_reason or '-'}}</td><td>{{p.telegram or ''}} {{p.instagram or ''}} {{p.facebook or ''}} {{p.discord or ''}}</td></tr>
+    {% endfor %}
+  </table>
+  <h2>Last inbound</h2>
+  <table>
+    <tr><th>ID</th><th>From</th><th>Subject</th><th>Text</th><th>Telegram</th></tr>
+    {% for m in inbound %}
+      <tr><td>{{m.id}}</td><td>{{m.from_email or '-'}}</td><td>{{m.subject or '-'}}</td><td>{{(m.body_text or '')[:240]}}</td><td>{{m.telegram_notified}}</td></tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

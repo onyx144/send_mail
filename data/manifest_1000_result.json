@@ -1,0 +1,47 @@
+{
+  "parse_result": {
+    "success": true,
+    "pages": 11,
+    "rows_seen": 1095,
+    "eligible_subscribers": 323,
+    "saved_ok": 0,
+    "saved_lose": 0,
+    "skipped_duplicate": 323,
+    "skipped_subscribers": 772,
+    "errors": [
+      "pagination finished: https://manifest.in.ua/rt/play/page/14/?order_type=_subscribercount&order=ASC returned 404"
+    ]
+  },
+  "stats": {
+    "status_counts": [
+      {
+        "status": "lose",
+        "plans": "later",
+        "c": 55
+      },
+      {
+        "status": "new",
+        "plans": "now",
+        "c": 267
+      }
+    ],
+    "contact_counts": [
+      {
+        "contact_status": "not_found",
+        "c": 240
+      },
+      {
+        "contact_status": "social_found",
+        "c": 56
+      },
+      {
+        "contact_status": "null",
+        "c": 26
+      }
+    ],
+    "email_count": 0,
+    "social_count": 60,
+    "website_count": 0,
+    "total": 322
+  }
+}

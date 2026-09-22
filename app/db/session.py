@@ -20,6 +20,6 @@ async def get_db():
 
 
 async def init_db() -> None:
-    from app.models.models import MailAccount, Prospect, SendLog, InboundMessage, TelegramPendingReply  # noqa: F401
+    from app.models.models import MailAccount, Prospect, SendLog, InboundMessage, TelegramPendingReply, TelegramBotUser  # noqa: F401
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

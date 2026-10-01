@@ -1,19 +1,19 @@
 # Mail Sender
 
-FastAPI project for collecting bloggers, saving them to a database, and sending emails through multiple SMTP/IMAP accounts.
+FastAPI-проект для сбора блогеров, сохранения в БД и рассылки писем через несколько SMTP/IMAP ящиков.
 
-## What's already implemented
+## Что уже реализовано
 
-- Email accounts are loaded from `.env` via `MAIL_ACCOUNTS_JSON`.
-- Default servers: `mx1.cityhost.com.ua` for SMTP/IMAP/POP3.
-- Default SQLite database: `data/mail_sender.sqlite3`.
-- Tables:
+- Почтовые аккаунты берутся из `.env` через `MAIL_ACCOUNTS_JSON`.
+- Серверы по умолчанию: `mx1.cityhost.com.ua` для SMTP/IMAP/POP3.
+- БД SQLite по умолчанию: `data/mail_sender.sqlite3`.
+- Таблицы:
   - `mail_accounts`
   - `prospects`
   - `send_logs`
   - `inbound_messages`
   - `telegram_pending_replies`
-- Website parser searches for:
+- Парсер сайта ищет:
   - `youtube_link`
   - `email`
   - `nick`
@@ -23,22 +23,22 @@ FastAPI project for collecting bloggers, saving them to a database, and sending 
   - `whatsapp`
   - `facebook`
   - `instagram`
-- Before adding, checks for duplicates by `youtube_link`.
+- Перед добавлением проверяет дубль по `youtube_link`.
 - `subscribers < 3000` → `plans='later'`.
 - `subscribers >= 3000` → `plans='now'`.
-- `status=False` by default; becomes `True` after successful send.
-- Sending only occurs for `plans='now'` + `status=False` + email present.
-- Global interval between sends: `SEND_INTERVAL_BETWEEN_EMAILS_SECONDS=600`.
-- Per-account interval: `SEND_INTERVAL_PER_ACCOUNT_SECONDS=3600`.
-- Same prospect won't be sent twice from the same account thanks to unique log `account_id + prospect_id`.
-- Incoming emails can be checked via IMAP; notifications go to Telegram if a token is provided.
-- Telegram notification includes a `Reply` button; the next message in the chat is sent as a reply to the email.
+- `status=False` по умолчанию, после успешной отправки становится `True`.
+- Отправка идёт только по `plans='now'` + `status=False` + есть email.
+- Интервал между отправками глобально: `SEND_INTERVAL_BETWEEN_EMAILS_SECONDS=600`.
+- Интервал на один ящик: `SEND_INTERVAL_PER_ACCOUNT_SECONDS=3600`.
+- Один и тот же prospect не отправляется повторно с того же ящика благодаря unique log `account_id + prospect_id`.
+- Входящие письма можно проверять через IMAP, уведомления уходят в Telegram при наличии токена.
+- В Telegram уведомлении есть кнопка `Відповісти`; следующий текст в чате отправляется как reply на email.
 
-## Important note on secrets
+## Важно по секретам
 
-Real passwords are not stored in the project. You provided them in the chat, but I did not save them to files. Insert them manually into your local `.env`.
+Реальные пароли не записаны в проект. Ты дал их в чате, но я не сохранил их в файлы. Вставь их вручную в локальный `.env`.
 
-## Installation
+## Установка
 
 ```bash
 cd /root/projects/mail-sender
@@ -48,9 +48,9 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Then open `.env` and replace `CHANGE_ME` with real passwords.
+Потом открой `.env` и вставь реальные пароли вместо `CHANGE_ME`.
 
-## Running locally
+## Запуск локально
 
 ```bash
 cd /root/projects/mail-sender
@@ -58,27 +58,27 @@ cd /root/projects/mail-sender
 uvicorn app.main:app --host 127.0.0.1 --port 8095
 ```
 
-## Verification
+## Проверка
 
 ```bash
 curl http://127.0.0.1:8095/health
 ```
 
-Admin panel:
+Админка:
 
 ```text
 http://127.0.0.1:8095/admin
 ```
 
-## Main endpoints
+## Основные endpoints
 
-### Sync accounts from `.env`
+### Синхронизировать аккаунты из `.env`
 
 ```bash
 curl -X POST http://127.0.0.1:8095/api/sync-accounts
 ```
 
-### Run the parser
+### Запустить парсер
 
 ```bash
 curl -X POST http://127.0.0.1:8095/api/parse \
@@ -86,58 +86,58 @@ curl -X POST http://127.0.0.1:8095/api/parse \
   -d '{"start_url":"https://example.com/bloggers","max_pages":1}'
 ```
 
-If `start_url` is not provided, it uses `PARSE_START_URL` from `.env`.
+Если `start_url` не передавать, берёт `PARSE_START_URL` из `.env`.
 
-### Send the next email
+### Отправить следующее письмо
 
 ```bash
 curl -X POST http://127.0.0.1:8095/api/send-next
 ```
 
-Before this, you need to fill in:
+Перед этим нужно заполнить:
 
 ```text
 OUTBOUND_SUBJECT
 prompts/first_message.txt
 ```
 
-### Check incoming emails
+### Проверить входящие
 
 ```bash
 curl -X POST http://127.0.0.1:8095/api/inbox-check
 ```
 
-### Reply to an incoming email manually via API
+### Ответить на входящее вручную через API
 
 ```bash
 curl -X POST http://127.0.0.1:8095/api/reply \
   -H 'Content-Type: application/json' \
-  -d '{"inbound_id":1,"body":"Reply text"}'
+  -d '{"inbound_id":1,"body":"Текст ответа"}'
 ```
 
 ## Telegram webhook
 
-Once you provide the token, you'll need to:
+Когда дашь токен, нужно будет:
 
-1. Set in `.env`:
+1. Указать в `.env`:
 
 ```text
 TELEGRAM_BOT_TOKEN="..."
 TELEGRAM_ADMIN_CHAT_IDS_JSON='["123456789"]'
 ```
 
-2. Set the webhook to the service's public URL:
+2. Поставить webhook на публичный URL сервиса:
 
 ```bash
 curl -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook" \
   -d "url=https://YOUR_DOMAIN/telegram/webhook"
 ```
 
-## Automatic loops
+## Автоматические циклы
 
-Disabled by default to avoid accidental sending.
+По умолчанию выключены, чтобы ничего случайно не отправлять.
 
-Enable via `.env`:
+Включаются через `.env`:
 
 ```text
 AUTO_SENDER_ENABLED=true
@@ -145,4 +145,4 @@ AUTO_INBOX_ENABLED=true
 AUTO_PARSE_ENABLED=true
 ```
 
-Do not enable `AUTO_SENDER_ENABLED` until you're ready with the subject and first message text.
+Не включай `AUTO_SENDER_ENABLED`, пока не готов subject и текст первого письма.
